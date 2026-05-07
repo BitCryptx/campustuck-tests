@@ -4,44 +4,93 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import time
 
-# WARNING: Yahan apne dost ke server ka asli IP aur port laazmi daalein!
-APP_URL = "https://www.github.com" 
+# Deployment URL (Localhost Jenkins ke liye, aur IP bahar ke liye)
+APP_URL = "http://localhost:5000" 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")  # Required for Jenkins/EC2
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    
-    # Driver initialize karna
     driver = webdriver.Chrome(options=chrome_options)
-    driver.implicitly_wait(10)
     yield driver
     driver.quit()
 
-def test_app_is_running(driver):
-    """Test 1: Check karna ke website load ho rahi hai ya crash ho gayi"""
-    driver.get(APP_URL)
-    # Check karega ke title mein kuch na kuch likha ho (empty na ho)
-    assert driver.title != "", "Website load nahi hui ya title khali hai!"
+# --- 15 AUTOMATED TEST CASES ---
 
-def test_page_load_time(driver):
-    """Test 2: Check karna ke website 3 second ke andar load ho jati hai"""
+def test_1_page_title(driver):
+    driver.get(APP_URL)
+    assert "Campus Tuck" in driver.title
+
+def test_2_logo_text(driver):
+    driver.get(APP_URL)
+    logo = driver.find_element(By.CLASS_NAME, "logo").text
+    assert "Campus Tuck" in logo
+
+def test_3_hero_heading(driver):
+    driver.get(APP_URL)
+    heading = driver.find_element(By.CSS_SELECTOR, ".hero-content h1").text
+    assert "Your Campus Essentials Store" in heading
+
+def test_4_shop_now_button_exists(driver):
+    driver.get(APP_URL)
+    btn = driver.find_element(By.CLASS_NAME, "hero-btn-primary")
+    assert btn.is_displayed()
+
+def test_5_find_us_button_exists(driver):
+    driver.get(APP_URL)
+    btn = driver.find_element(By.CLASS_NAME, "hero-btn-secondary")
+    assert btn.is_displayed()
+
+def test_6_navbar_products_link(driver):
+    driver.get(APP_URL)
+    nav_links = driver.find_elements(By.CLASS_NAME, "nav-link")
+    assert any("Products" in link.text for link in nav_links)
+
+def test_7_user_login_button(driver):
+    driver.get(APP_URL)
+    btn = driver.find_element(By.CLASS_NAME, "btn-outline")
+    assert "User Login" in btn.text
+
+def test_8_admin_login_button(driver):
+    driver.get(APP_URL)
+    btn = driver.find_element(By.CLASS_NAME, "btn-solid")
+    assert "Admin" in btn.text
+
+def test_9_product_categories_heading(driver):
+    driver.get(APP_URL)
+    heading = driver.find_element(By.CSS_SELECTOR, ".section-title h2").text
+    assert "Our Product Categories" in heading
+
+def test_10_check_category_cards_count(driver):
+    driver.get(APP_URL)
+    cards = driver.find_elements(By.CLASS_NAME, "category-card")
+    assert len(cards) >= 4  # Snacks, Beverages, Chocolate, Stationery
+
+def test_11_footer_copyright(driver):
+    driver.get(APP_URL)
+    footer = driver.find_element(By.CLASS_NAME, "footer-bottom").text
+    assert "2025 Campus Tuck" in footer
+
+def test_12_social_links_count(driver):
+    driver.get(APP_URL)
+    links = driver.find_elements(By.CLASS_NAME, "social-link")
+    assert len(links) == 4
+
+def test_13_contact_info_phone(driver):
+    driver.get(APP_URL)
+    contact_section = driver.find_element(By.CLASS_NAME, "footer-contact").text
+    assert "03151622934" in contact_section
+
+def test_14_category_card_navigation(driver):
+    driver.get(APP_URL)
+    first_card = driver.find_element(By.CLASS_NAME, "category-card")
+    link = first_card.get_attribute("href")
+    assert "products.html" in link
+
+def test_15_page_load_performance(driver):
     start_time = time.time()
     driver.get(APP_URL)
-    load_time = time.time() - start_time
-    assert load_time < 3.0, f"Website bohut slow hai! Load time: {load_time} seconds"
-
-def test_main_content(driver):
-    """Test 3: Check karna ke page ki body mein content (text) majood hai"""
-    driver.get(APP_URL)
-    body_text = driver.find_element(By.TAG_NAME, "body").text
-    assert len(body_text) > 10, "Page par koi content nahi mil raha, shayad blank hai!"
-
-def test_header_exists(driver):
-    """Test 4: Check karna ke page par koi header ya navigation moojood hai"""
-    driver.get(APP_URL)
-    headers = driver.find_elements(By.TAG_NAME, "header")
-    navs = driver.find_elements(By.TAG_NAME, "nav")
-    assert len(headers) > 0 or len(navs) > 0, "Website par Header ya Navbar nahi mila!"
+    end_time = time.time()
+    assert (end_time - start_time) < 5  # Should load in less than 5 seconds
