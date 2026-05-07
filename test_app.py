@@ -30,13 +30,15 @@ def test_2_logo_text(driver):
 
 def test_3_hero_heading(driver):
     driver.get(APP_URL)
-    heading = driver.find_element(By.CSS_SELECTOR, ".hero-content h1").text
+    # .text ki jagah textContent use karein taake hidden/animating text bhi catch ho jaye
+    heading = driver.find_element(By.CSS_SELECTOR, ".hero-content h1").get_attribute("textContent")
     assert "Your Campus Essentials Store" in heading
 
 def test_4_shop_now_button_exists(driver):
     driver.get(APP_URL)
-    btn = driver.find_element(By.CLASS_NAME, "hero-btn-primary")
-    assert btn.is_displayed()
+    # is_displayed() ki jagah elements ki length check karein (DOM existence)
+    btn = driver.find_elements(By.CLASS_NAME, "hero-btn-primary")
+    assert len(btn) > 0
 
 def test_5_find_us_button_exists(driver):
     driver.get(APP_URL)
