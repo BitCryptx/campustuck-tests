@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 import time
 
 # WARNING: Yahan apne dost ke server ka asli IP aur port laazmi daalein!
-APP_URL = "http://16.171.11.49:5000" 
+APP_URL = "https://www.youtube.com" 
 
 @pytest.fixture(scope="module")
 def driver():
