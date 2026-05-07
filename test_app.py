@@ -9,7 +9,6 @@ APP_URL = "http://16.171.11.49:5000"
 
 @pytest.fixture(scope="module")
 def driver():
-    # Headless Chrome ki settings (Server par screen nahi hoti isliye headless zaroori hai)
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
